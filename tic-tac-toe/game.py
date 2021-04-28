@@ -1,6 +1,6 @@
 class Game:
     # Game takes in some strategies
-    def __init__(self, strategies):
+    def __init__(self, strategies, logging=True):
         # Go through the strategies and initialize them with their player num
         initialized_strategies = []
         for strategy_num, strategy in enumerate(strategies):
@@ -9,6 +9,7 @@ class Game:
 
         self.current_strategy = 0
         self.turn_number = 0
+        self.logging = logging
 
         # Board size (rows, columns)
         self.board_size = (3, 3)
@@ -107,11 +108,12 @@ class Game:
 
         # Someone either won or tied, and the results
         # Are in the winner variable
-        if winner == -1:
-            print("The game was a tie!")
-        else:
-            print("We have a winner!!!")
-            print(f"Congratulations to {type(self.strategies[winner]).__name__}!")
+        if self.logging:
+            if winner == -1:
+                print("The game was a tie!")
+            else:
+                print("We have a winner!!!")
+                print(f"Congratulations to {type(self.strategies[winner]).__name__}!")
 
         # Print the board to show the monitor what happened
         self.print_board()
@@ -120,6 +122,10 @@ class Game:
         return winner
 
     def print_board(self):
+        # If logging is disabled, just return
+        if not self.logging:
+            return
+
         print_table = {
             0: "X",
             1: "O",

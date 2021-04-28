@@ -4,8 +4,8 @@ class ReverseDumbStrategy:
 
     # Choose the last available position by looping backwards
     def move(self, board):
-        for row in range(2, 0, -1):
-            for column in range(2, 0, -1):
+        for row in range(2, -1, -1):
+            for column in range(2, -1, -1):
                 if board[row][column] == -1:
                     return (row, column)
         # There should never be an error here
