@@ -1,9 +1,10 @@
 from game import Game
 class Node:
-    def __init__(self,state,parent,move):
+    def __init__(self,state,parent,move,depth):
         self.state = state
         self.parent = parent
         self.difference = move
+        self.depth = depth
         self.value = None
         self.terminal = False if Game.check_for_completion(state) is None else True
         self.children = []
@@ -18,8 +19,10 @@ class Node:
             else:
                 self.value = -1
         elif not self.terminal and (None not in [child.value for child in self.children]):
-            print(self.parent.state)
-            self.value = min([node.value for node in self.children])
+            if self.depth % 2 == 0:
+                self.value = max([node.value for node in self.children])
+            else:
+                self.value = min([node.value for node in self.children])
         else:
             for node in self.children:
                 node.set_value(max_player)

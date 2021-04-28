@@ -7,7 +7,6 @@ class Game:
     def run_game(self):
         while Game.check_for_completion(self.state) is None:
             move = self.strategies[self.active_player-1].move(self.state)
-            print(move)
             self.state[move[0]][move[1]] = self.active_player
             self.active_player = 1 if self.active_player == 2 else 2
         
