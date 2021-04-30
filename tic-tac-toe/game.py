@@ -1,7 +1,10 @@
 class Game:
-    def __init__(self,strat_1,strat_2):
+    def __init__(self,strat_1,strat_2,state = 0):
         self.strategies = [strat_1(1),strat_2(2)]
-        self.state = [[0 for i in range(3)] for j in range(3)]
+        if state == 0:
+            self.state = [[0 for i in range(3)] for j in range(3)]
+        else:
+            self.state = state
         self.active_player = 1
 
     def run_game(self):
