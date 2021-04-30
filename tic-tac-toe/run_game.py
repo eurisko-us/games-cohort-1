@@ -101,11 +101,21 @@ def minimax_algorithm(board, depth, current_letter, maximizing):
         return best_score
     return best_score
 
-strats = [random_strat, my_strat]#, minimax_strat] #dont run the minimax strat unless u want to waste hours waiting for it to finish
-
+strats = [random_strat, my_strat, minimax_strat] #dont run the minimax strat unless u want to waste hours waiting for it to finish
+'''#118
 for strat_1 in strats: #9 total games
     for strat_2 in strats:
         wins = Game([strat_1, strat_2]).run_simulations(1000, False)
         print('\n', strat_1.__name__, 'vs', strat_2.__name__, '\n', wins)
+print()'''
+#119
+wins = Game([random_strat, minimax_strat]).run_simulations(100, False)
+print('\n', random_strat.__name__, 'vs', minimax_strat.__name__, '\n', wins)
+print('expected to draw more while winning more than random strat due to going second')
+
+wins = Game([minimax_strat, random_strat]).run_simulations(100, False)
+print('\n', minimax_strat.__name__, 'vs', random_strat.__name__, '\n', wins)
+print('expected to draw more while losing the rest for example, I have no idea why the strat sucks, I coded it my own way, got crappy numbers, then I followed the video and got the same numbers but it do destory my strat (in local testing) with the first turn advantage given to my strat')
 print()
+
 

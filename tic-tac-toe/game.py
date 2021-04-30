@@ -26,7 +26,7 @@ class Game:
                 turn = forfiet.args[0]
                 if print_simulations:
                     print(self.strats[turn % 2].__name__, 'Forfiet on simulation iteration:', iteration, 'turn:', turn)
-                self.wins[turn % 2] += 1
+                self.wins[1 - turn % 2] += 1
                 self.board.new_game(turn % 2)
                 continue
 
