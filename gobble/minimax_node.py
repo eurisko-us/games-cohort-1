@@ -1,6 +1,6 @@
 from game import Game
 class Node:
-    def __init__(self,state,parent,move,depth):
+    def __init__(self, state, parent, move, depth):
         self.state = state
         self.parent = parent
         self.difference = move

@@ -1,22 +1,35 @@
 from minimax_node import Node
 from game import Game
 class Minimax:
-    def __init__(self,state,max_player):
-        self.root = Node(state,None,None,0)
+    def __init__(self,state, max_player, k = 2):
+        self.k = k
+        self.k_count = [0, 0, 0]
+        self.root = Node(state, None, None, 0)
         self.active_node = self.root
         self.max_player = max_player
         self.nodes = []
         self.build_tree()
+        
 
     def next_step(self,player):
         new_nodes = []
         base_state = self.active_node.state
         for x in range(3):
             for y in range(3):
-                if self.active_node.state[x][y] == 0:
-                    possible_state = [[y for y in x] for x in base_state]
-                    possible_state[x][y] = player
-                    new_node = Node(possible_state,self.active_node,(x,y),self.active_node.depth + 1)
+                element = self.active_node.state[x][y]
+                possible_state = [[y for y in x] for x in base_state]
+                if element is None:
+                    for strength, count in enumerate(self.k_count):
+                        if count + 1 < self.k:
+                            possible_state[x][y] = (player, strength)
+                            self.k_count[strength] += 1
+                            break
+                    new_node = Node(possible_state, self.active_node, (x,y), self.active_node.depth + 1)
+                    self.active_node.children.append(new_node)
+                    new_nodes.append(new_node)
+                elif element[0] != player and element[1] < 2 and self.k_count[element[1] + 1] < self.k:
+                    possible_state[x][y] = (player, element[1] + 1)
+                    new_node = Node(possible_state, self.active_node, (x,y), self.active_node.depth + 1)
                     self.active_node.children.append(new_node)
                     new_nodes.append(new_node)
         return new_nodes
