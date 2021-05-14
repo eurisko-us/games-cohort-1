@@ -1,4 +1,4 @@
-from game import Gobble
+from gobble import Gobble
 from cycle_strat import CycleStrategy
 from random_strat import RandomStrategy
 
