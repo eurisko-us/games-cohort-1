@@ -14,17 +14,19 @@ class TestStrategy:
                         return ((x,y),size)
 
 class MinimaxStrategy:
-    def __init__(self,player_num):
+    def __init__(self,player_num, N):
         self.player_num = player_num
+        self.N = N
 
     def move(self,current_game, current_pieces):
-        minimax = Minimax(current_game, current_pieces,self.player_num)
+        minimax = Minimax(current_game, current_pieces,self.player_num, self.N)
         move = minimax.best_move()
         return move
 
 class RandomStrategy:
-    def __init__(self,player_num):
+    def __init__(self,player_num, N):
         self.player_num = player_num
+        self.N = N
 
     def move(self,current_game, pieces):
         empty_spaces = []

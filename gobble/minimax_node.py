@@ -1,23 +1,22 @@
 from game import Game
 class Node:
-    def __init__(self,state,pieces,parent,move,depth):
+    def __init__(self,state,pieces,parent,move,depth, max_depth):
         self.state = state
         self.pieces = pieces
         self.parent = parent
         self.difference = move
         self.depth = depth
+        self.max_depth = max_depth
         self.value = None
         self.terminal = self.check_terminality()
         self.children = []
 
     def check_terminality(self):
-        #draw
-                
+        #draw      
         for i in range(3):
             for j in range(3):
                 if self.state[i][j]['player'] == 0 and len(self.pieces[0])>0 and len(self.pieces[1])>0:
                     return False
-        
 
         possible_moves = [[],[]]
         for row in self.state:
@@ -37,34 +36,32 @@ class Node:
             return True
 
 
-
         #horizontal
         for row in self.state:
             if row[0]['player']==row[1]['player'] and row[1]['player'] == row[2]['player'] and row[0]['player'] != 0:
-                return True
+                if len(possible_moves[(row[0]['player'] - 1)]) == 0:
+                    return True
         #vertical
         for i in range(3):
             if self.state[0][i]['player'] == self.state[1][i]['player'] and self.state[1][i]['player'] == self.state[2][i]['player'] and self.state[1][i]['player'] != 0:
-                return True
+                if len(possible_moves[(self.state[0][i]['player'] - 1)]) == 0:
+                    return True
 
         #diagonal
         if self.state[0][0]['player'] == self.state[1][1]['player'] and self.state[1][1]['player'] == self.state[2][2]['player'] and self.state[0][0]['player'] != 0:
-            return True
+            if len(possible_moves[(self.state[0][0]['player'] - 1)]) == 0:
+                return True
         elif self.state[0][2]['player'] == self.state[1][1]['player'] and self.state[1][1]['player'] == self.state[2][0]['player'] and self.state[1][1]['player'] != 0:
-            return True
+           if len(possible_moves[self.state[0][2]['player']-1]) == 0:
+                if len(possible_moves[(self.state[0][2]['player'] - 1)]) == 0:
+                    return True
         
         
         return False
 
     def set_value(self,max_player):
-        if self.terminal:
-            winner = Game.check_for_completion(self.state)
-            if winner == max_player:
-                self.value = 1
-            elif winner == 'Draw':
-                self.value = 0
-            else:
-                self.value = -1
+        if self.terminal or self.depth == self.max_depth:
+            self.value = self.heuristic_score_calculator(max_player)
         elif not self.terminal and (None not in [child.value for child in self.children]):
             if self.depth % 2 == 0:
                 self.value = max([node.value for node in self.children])
@@ -74,6 +71,66 @@ class Node:
             for node in self.children:
                 node.set_value(max_player)
 
+
+    def heuristic_score_calculator(self,max_player):
+        score = 0
+        #horizontal
+        for row in self.state:
+            if row[0]['player']==row[1]['player'] and row[1]['player'] == row[2]['player'] and row[0]['player'] != 0:
+                if row[0]['player'] == max_player: score+=100 
+                else: score -= 100
+            elif row[0]['player']==row[1]['player']:
+                if row[0]['player'] == max_player: score+=10 
+                else: score -= 10
+            elif row[1]['player'] == row[2]['player']:
+                if row[1]['player'] == max_player: score+=10 
+                else: score -= 10
+            elif row[0]['player'] == row[2]['player']:
+                if row[0]['player'] == max_player: score+=10 
+                else: score -= 10
+        #vertical
+        for i in range(3):
+            if self.state[0][i]['player'] == self.state[1][i]['player'] and self.state[1][i]['player'] == self.state[2][i]['player'] and self.state[1][i]['player'] != 0:
+                if self.state[0][i]['player'] == max_player: score+=100 
+                else: score -= 100
+            elif self.state[0][i]['player']==self.state[1][i]['player']:
+                if self.state[0][i]['player'] == max_player: score+=10 
+                else: score -= 10
+            elif self.state[1][i]['player'] == self.state[2][i]['player']:
+                if self.state[1][i]['player'] == max_player: score+=10 
+                else: score -= 10
+            elif self.state[0][i]['player'] == self.state[2][i]['player']:
+                if self.state[0][i]['player'] == max_player: score+=10 
+                else: score -= 10
+
+        #diagonal
+        if self.state[0][0]['player'] == self.state[1][1]['player'] and self.state[1][1]['player'] == self.state[2][2]['player'] and self.state[0][0]['player'] != 0:
+            if self.state[0][0]['player'] == max_player: score+=100 
+            else: score -= 100
+        elif self.state[0][0]['player']==self.state[1][1]['player']:
+            if self.state[0][0]['player'] == max_player: score+=10 
+            else: score -= 10
+        elif self.state[1][1]['player'] == self.state[2][2]['player']:
+            if self.state[1][1]['player'] == max_player: score+=10 
+            else: score -= 10
+        elif self.state[0][0]['player'] == self.state[2][2]['player']:
+            if self.state[0][0]['player'] == max_player: score+=10 
+            else: score -= 10
+        elif self.state[0][2]['player'] == self.state[1][1]['player'] and self.state[1][1]['player'] == self.state[2][0]['player'] and self.state[1][1]['player'] != 0:
+            if self.state[0][2]['player'] == max_player: score+=100 
+            else: score -= 100
+        elif self.state[0][2]['player']==self.state[1][1]['player']:
+            if self.state[0][2]['player'] == max_player: score+=10 
+            else: score -= 10
+        elif self.state[1][1]['player'] == self.state[2][0]['player']:
+            if self.state[1][1]['player'] == max_player: score+=10 
+            else: score -= 10
+        elif self.state[0][2]['player'] == self.state[2][0]['player']:
+            if self.state[0][0]['player'] == max_player: score+=10 
+            else: score -= 10
+        
+        
+        return score
 
 
 

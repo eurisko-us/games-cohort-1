@@ -1,6 +1,6 @@
 class Game:
-    def __init__(self,strat_1,strat_2,state = 0, k = 3):
-        self.strategies = [strat_1(1),strat_2(2)]
+    def __init__(self,strat_1,strat_2, max_depth,state = 0, k = 3):
+        self.strategies = [strat_1(1,max_depth),strat_2(2,max_depth)]
         self.pieces = [[val for val in range(1,4) for _ in range(k)] for player_num in range(2)]
 
         if state == 0:
