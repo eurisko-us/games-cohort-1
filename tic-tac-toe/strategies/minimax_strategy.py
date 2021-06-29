@@ -49,6 +49,9 @@ class GameTree:
     def is_arr_repeated(self, arr):
         return arr[0] == arr[1] == arr[2] and arr[0] != 0
 
+    def get_length(self):
+        return sum(c[0].get_length() for c in self.children) + 1
+
 class MinimaxStrategy:
     def __init__(self, num):
         self.num = num
@@ -57,3 +60,11 @@ class MinimaxStrategy:
         tree = GameTree(board, self.num)
         child = max(tree.children, key=lambda x: x[0].score*self.num)
         return child[1]
+
+if __name__ == "__main__":
+    import time
+    start = time.time()
+    tree = GameTree([[0, 0, 0], [0, 0, 0], [0, 0, 0]], 1)
+    time_taken = time.time() - start
+    print("Time taken to construct a full game tree:", time_taken)
+    print("Amount of nodes in game tree:", tree.get_length())
