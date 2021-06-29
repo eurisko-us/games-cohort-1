@@ -1,5 +1,5 @@
 class GameTree:
-    def __init__(self, board, pieces, current_player):
+    def __init__(self, board, pieces, current_player, max_depth=None):
         self.board = board
         self.pieces = pieces
         self.current_player = current_player
@@ -7,7 +7,12 @@ class GameTree:
         self.children = []
         winner = self.test_for_winner()
 
-        if winner == None:
+        if max_depth == None:
+            new_max_depth = None
+        else:
+            new_max_depth = max_depth - 1
+
+        if winner == None and (max_depth != 0 or max_depth is None):
             next_player = current_player * -1
             for x in range(len(board)):
                 for y in range(len(board[x])):
@@ -17,7 +22,7 @@ class GameTree:
                             continue
 
                         self.children.append((
-                            GameTree(self.new_board(x, y, piece_size), self.new_pieces(piece_size), next_player),
+                            GameTree(self.new_board(x, y, piece_size), self.new_pieces(piece_size), next_player, new_max_depth),
                             (x, y, piece_size)
                         ))
 
@@ -28,7 +33,7 @@ class GameTree:
                 self.score = max(x[0].score for x in self.children)
         else:
             # Determine state if there's no children
-            self.score = winner
+            self.score = self.get_heuristic()
 
     def new_board(self, x, y, size):
         board_copy = [[space.copy() for space in row] for row in self.board]
@@ -39,6 +44,33 @@ class GameTree:
         new_pieces = {k: v.copy() for k, v in self.pieces.items()}
         new_pieces[self.current_player][piece_size] -= 1
         return new_pieces
+
+    def row_to_players(self, row):
+        return [x["player"] for x in row]
+
+    def row_heuristic(self, row):
+        if row.count(self.current_player) == 2:
+            return 10
+        elif row.count(self.current_player) == 3:
+            return 100
+        elif row.count(-self.current_player) == 2:
+            return -10
+        elif row.count(-self.current_player) == 3:
+            return -100
+        return 0
+
+    def get_heuristic(self):
+        score = 0
+        for row in self.board:
+            score += self.row_heuristic(self.row_to_players(row))
+        columns = list(zip(*self.board))
+        for column in columns:
+            score += self.row_heuristic(self.row_to_players(column))
+        diagonal1 = [self.board[0][0], self.board[1][1], self.board[2][2]]
+        score += self.row_heuristic(self.row_to_players(diagonal1))
+        diagonal2 = [self.board[2][0], self.board[1][1], self.board[0][2]]
+        score += self.row_heuristic(self.row_to_players(diagonal2))
+        return score
 
     def test_for_winner(self):
         for row in self.board:
@@ -54,11 +86,9 @@ class GameTree:
         diagonal2 = [self.board[2][0], self.board[1][1], self.board[0][2]]
         if self.is_arr_repeated(diagonal2):
             return diagonal2[0]["player"]
-        if 0 not in [x["player"] for row in self.board for x in row]:
-            return 0
         if max(x for player in self.pieces.values() for x in player.values()) == 0:
             return 0
-        if max(x for x in self.pieces[self.current_player].keys() if x != 0) <\
+        if max(x for x in self.pieces[self.current_player].keys() if x != 0) <=\
             min(space["size"] for row in self.board for space in row):
             return 0
         return None
@@ -73,8 +103,10 @@ class MinimaxStrategy:
     def __init__(self, num):
         self.num = num
 
-    def move(self, board):
-        tree = GameTree(board, self.num)
+    def move(self, board, pieces):
+        tree = GameTree(board, pieces, self.num, 1)
+        if len(tree.children) == 0:
+            print("test")
         child = max(tree.children, key=lambda x: x[0].score*self.num)
         return child[1]
 
@@ -82,16 +114,17 @@ if __name__ == "__main__":
     import time
     start = time.time()
     board = [
-        [{"player": 0, "size": 0}, {"player": 0, "size": 0},{"player": 0, "size": 0}],
-        [{"player": 0, "size": 0}, {"player": 0, "size": 0},{"player": 0, "size": 0}],
-        [{"player": 0, "size": 0}, {"player": 0, "size": 0},{"player": 0, "size": 0}]
+        [{"player": 0, "size": 0}, {"player": 0, "size": 0},{"player": 1, "size": 1}],
+        [{"player": 1, "size": 1}, {"player": 1, "size": 1},{"player":-1, "size": 1}],
+        [{"player":-1, "size": 1}, {"player": 1, "size": 1},{"player":-1, "size": 1}]
     ]
     k = 2
     pieces = {
-        1: {1: k, 2: k, 3: k},
-        -1: {1: k, 2: k, 3: k}
+        1:  {1: 2, 2: 0, 3: 0},
+        -1: {1: 2, 2: 0, 3: 0}
     }
-    tree = GameTree(board, pieces, 1)
+    n = 1
+    tree = GameTree(board, pieces, 1, n)
     time_taken = time.time() - start
     print("Time taken to construct a full game tree:", time_taken)
     print("Amount of nodes in game tree:", tree.get_length())

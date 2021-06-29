@@ -47,12 +47,12 @@ class Game:
             return diagonal2[0]
 
         # If current player doesn't have pieces left
-        if max(x for x in self.pieces[self.current_strategy].values()) == 0:
+        if max(x for player in self.pieces.values() for x in player.values()) == 0:
             return 0
 
         # If current player can't make a move
-        if max(self.pieces[self.current_strategy], key=self.pieces[self.current_strategy].get) <\
-            min((space for row in self.board for space in row), key=lambda x: x['size']):
+        if max(x for x in self.pieces[self.current_strategy].keys() if x != 0) <=\
+            min(space["size"] for row in self.board for space in row):
             return 0
 
         # If no one won, return -1
@@ -60,11 +60,18 @@ class Game:
 
     # Return if someone won on a specific row/column/diagonal
     def is_arr_repeated(self, arr):
-        return arr['player'][0] == arr['player'][1] == arr['player'][2] and arr['player'][0] != 0
+        return arr[0]['player'] == arr[1]['player'] == arr[2]['player'] and arr[0]['player'] != 0
 
-    # Check if every space is filled (checks for a tie, even if there is a winner)
+    # If current player doesn't have pieces left
+    # If current player can't make a move
     def check_tie(self):
-        return 0 not in [e['player'] for row in self.board for e in row]
+        if sum(self.pieces[-self.current_strategy].values()) == 0:
+            return True
+
+        if max(x for x in self.pieces[-self.current_strategy] if x != 0) <=\
+            min(space["size"] for row in self.board for space in row):
+            return True
+        return False
 
     # Let each strategy take a turn until someone wins
     def play_game(self):
@@ -82,13 +89,13 @@ class Game:
             assert 0 <= ypos_to_move < 3
 
             # Make sure strategy doesn't overwrite someone else's move
-            assert self.board[xpos_to_move][ypos_to_move] == 0
+            assert self.board[xpos_to_move][ypos_to_move]["size"] < size
 
             # Make sure player actually has piece
             assert self.pieces[self.current_strategy][size] > 0
 
             # Actually make the move!
-            self.board[xpos_to_move][ypos_to_move] = self.current_strategy
+            self.board[xpos_to_move][ypos_to_move] = {"player": self.current_strategy, "size": size}
             self.pieces[self.current_strategy][size] -= 1
 
             # Check if anyone won the game
