@@ -1,8 +1,9 @@
 class GameTree:
-    def __init__(self, board, pieces, current_player, max_depth=None):
+    def __init__(self, board, pieces, current_player, player, max_depth=None):
         self.board = board
         self.pieces = pieces
         self.current_player = current_player
+        self.player = player
 
         self.children = []
         winner = self.test_for_winner()
@@ -22,12 +23,12 @@ class GameTree:
                             continue
 
                         self.children.append((
-                            GameTree(self.new_board(x, y, piece_size), self.new_pieces(piece_size), next_player, new_max_depth),
+                            GameTree(self.new_board(x, y, piece_size), self.new_pieces(piece_size), next_player, player, new_max_depth),
                             (x, y, piece_size)
                         ))
 
             # Determine state based on children
-            if current_player == -1:
+            if current_player != player:
                 self.score = min(x[0].score for x in self.children)
             else:
                 self.score = max(x[0].score for x in self.children)
@@ -49,13 +50,13 @@ class GameTree:
         return [x["player"] for x in row]
 
     def row_heuristic(self, row):
-        if row.count(self.current_player) == 2:
+        if row.count(self.player) == 2:
             return 10
-        elif row.count(self.current_player) == 3:
+        elif row.count(self.player) == 3:
             return 100
-        elif row.count(-self.current_player) == 2:
+        elif row.count(-self.player) == 2:
             return -10
-        elif row.count(-self.current_player) == 3:
+        elif row.count(-self.player) == 3:
             return -100
         return 0
 
@@ -88,7 +89,7 @@ class GameTree:
             return diagonal2[0]["player"]
         if max(x for player in self.pieces.values() for x in player.values()) == 0:
             return 0
-        if max(x for x in self.pieces[self.current_player].keys() if x != 0) <=\
+        if max(x for x, v in self.pieces[self.current_player].items() if v != 0) <=\
             min(space["size"] for row in self.board for space in row):
             return 0
         return None
@@ -104,28 +105,26 @@ class MinimaxStrategy:
         self.num = num
 
     def move(self, board, pieces):
-        tree = GameTree(board, pieces, self.num, 1)
-        if len(tree.children) == 0:
-            print("test")
-        child = max(tree.children, key=lambda x: x[0].score*self.num)
+        tree = GameTree(board, pieces, self.num, self.num, 1)
+        child = max(tree.children, key=lambda x: x[0].score)
         return child[1]
 
-if __name__ == "__main__":
-    import time
-    start = time.time()
-    board = [
-        [{"player": 0, "size": 0}, {"player": 0, "size": 0},{"player": 1, "size": 1}],
-        [{"player": 1, "size": 1}, {"player": 1, "size": 1},{"player":-1, "size": 1}],
-        [{"player":-1, "size": 1}, {"player": 1, "size": 1},{"player":-1, "size": 1}]
-    ]
-    k = 2
-    pieces = {
-        1:  {1: 2, 2: 0, 3: 0},
-        -1: {1: 2, 2: 0, 3: 0}
-    }
-    n = 1
-    tree = GameTree(board, pieces, 1, n)
-    time_taken = time.time() - start
-    print("Time taken to construct a full game tree:", time_taken)
-    print("Amount of nodes in game tree:", tree.get_length())
-    print("Finished")
+# if __name__ == "__main__":
+#     import time
+#     start = time.time()
+#     board = [
+#         [{"player": 0, "size": 0}, {"player": 0, "size": 0},{"player": 1, "size": 1}],
+#         [{"player": 1, "size": 1}, {"player": 1, "size": 1},{"player":-1, "size": 1}],
+#         [{"player":-1, "size": 1}, {"player": 1, "size": 1},{"player":-1, "size": 1}]
+#     ]
+#     k = 2
+#     pieces = {
+#         1:  {1: 2, 2: 0, 3: 0},
+#         -1: {1: 2, 2: 0, 3: 0}
+#     }
+#     n = 1
+#     tree = GameTree(board, pieces, 1, 1, n)
+#     time_taken = time.time() - start
+#     print("Time taken to construct a full game tree:", time_taken)
+#     print("Amount of nodes in game tree:", tree.get_length())
+#     print("Finished")

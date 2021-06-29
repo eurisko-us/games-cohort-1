@@ -27,24 +27,24 @@ class Game:
         # Rows (easiest one)
         for row in self.board:
             if self.is_arr_repeated(row):
-                return row[0]
+                return row[0]["player"]
 
         # Columns (also pretty easy)
         # Transpose rows to get columns:
         columns = list(zip(*self.board))
         for column in columns:
             if self.is_arr_repeated(column):
-                return column[0]
+                return column[0]["player"]
 
         # Top left to bottom right diagonal
         diagonal1 = [self.board[0][0], self.board[1][1], self.board[2][2]]
         if self.is_arr_repeated(diagonal1):
-            return diagonal1[0]
+            return diagonal1[0]["player"]
 
         # Top right to bottom left diagonal
         diagonal2 = [self.board[2][0], self.board[1][1], self.board[0][2]]
         if self.is_arr_repeated(diagonal2):
-            return diagonal2[0]
+            return diagonal2[0]["player"]
 
         # If current player doesn't have pieces left
         if max(x for player in self.pieces.values() for x in player.values()) == 0:
@@ -68,7 +68,7 @@ class Game:
         if sum(self.pieces[-self.current_strategy].values()) == 0:
             return True
 
-        if max(x for x in self.pieces[-self.current_strategy] if x != 0) <=\
+        if max(x for x, v in self.pieces[-self.current_strategy].items() if v != 0) <=\
             min(space["size"] for row in self.board for space in row):
             return True
         return False

@@ -11,5 +11,5 @@ class RandomStrategy:
             for y in range(len(board[x]))
             for size in range(1, 4)
             if pieces[self.num][size] > 0
-            if board[x][y]["player"] == 0
+            if board[x][y]["size"] < size
         ])

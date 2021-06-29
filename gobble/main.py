@@ -11,8 +11,10 @@ win_counter = [0, 0, 0]
 games_passed = 0
 
 # While 3 minutes haven't passed yet
+time_pass = 3 * 60
+# time_pass = 5
 strats = [RandomStrategy, MinimaxStrategy]
-while time.time() - start < 3 * 60:
+while time.time() - start < time_pass:
     games_passed += 1
     # Play games
     game = Game(strats, 2)
